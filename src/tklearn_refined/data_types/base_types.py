@@ -25,7 +25,6 @@ class Date:
     known_format: bool = True
 
     def can_identify_format(self):
-
         if self.day is None or self.month is None:
             return True
 
@@ -63,18 +62,30 @@ class Date:
 class Entity:
     wikidata_entity_id: Optional[str] = None
     wikipedia_entity_title: Optional[str] = None
-    human_readable_name: Optional[str] = None  # such as Wikipedia title or Wikidata label
+    human_readable_name: Optional[str] = (
+        None  # such as Wikipedia title or Wikidata label
+    )
     parsed_string: Optional[str] = None
 
     def __post_init__(self):
-        if self.wikidata_entity_id == 'Q-1':
+        if self.wikidata_entity_id == "Q-1":
             self.wikidata_entity_id = None
 
     def __repr__(self):
         if len([v for v in vars(self).values() if v is not None]) > 0:
-            return 'Entity(' + ', '.join([f'{var}={val}' for var, val in vars(self).items() if val is not None]) + ')'
+            return (
+                "Entity("
+                + ", ".join(
+                    [
+                        f"{var}={val}"
+                        for var, val in vars(self).items()
+                        if val is not None
+                    ]
+                )
+                + ")"
+            )
         else:
-            return 'Entity not linked to a knowledge base'
+            return "Entity not linked to a knowledge base"
 
 
 @dataclass
@@ -103,11 +114,19 @@ class Span:
     predicted_entity: Optional[Entity] = None
     entity_linking_model_confidence_score: Optional[float] = None
     top_k_predicted_entities: Optional[Tuple[List[Entity], float]] = None
-    predicted_entity_types: Optional[List[Tuple[str, str, float]]] = None  # (type_id, type_label, confidence)
+    predicted_entity_types: Optional[List[Tuple[str, str, float]]] = (
+        None  # (type_id, type_label, confidence)
+    )
     coarse_type: Optional[str] = "MENTION"  # High level types such as (MENTION, DATE)
-    coarse_mention_type: Optional[str] = None  # OntoNotes/spaCy types for mentions (ORG, LOC, PERSON)
-    date: Optional[Date] = None  # if the span represents a date this object parses the date
-    failed_class_check: Optional[bool] = None  # Indicates predicted class and actual entity class mismatch
+    coarse_mention_type: Optional[str] = (
+        None  # OntoNotes/spaCy types for mentions (ORG, LOC, PERSON)
+    )
+    date: Optional[Date] = (
+        None  # if the span represents a date this object parses the date
+    )
+    failed_class_check: Optional[bool] = (
+        None  # Indicates predicted class and actual entity class mismatch
+    )
 
     # can be used to filter candidates to a given set (optional)
     pruned_candidates: Optional[Set[str]] = None
