@@ -5,7 +5,13 @@ import numpy as np
 import torch
 import ujson as json
 from nltk import PunktSentenceTokenizer
-from transformers import AutoTokenizer, AutoModel, AutoConfig, PreTrainedTokenizer, PreTrainedModel
+from transformers import (
+    AutoTokenizer,
+    AutoModel,
+    AutoConfig,
+    PreTrainedTokenizer,
+    PreTrainedModel,
+)
 
 from refined.resource_management.resource_manager import ResourceManager, get_mmap_shape
 from refined.resource_management.aws import S3Manager
@@ -15,19 +21,26 @@ import os
 
 
 class LookupsInferenceOnly:
-
-    def __init__(self, entity_set: str, data_dir: str, use_precomputed_description_embeddings: bool = True,
-                 return_titles: bool = False):
+    def __init__(
+        self,
+        entity_set: str,
+        data_dir: str,
+        use_precomputed_description_embeddings: bool = True,
+        return_titles: bool = False,
+    ):
         self.entity_set = entity_set
         self.data_dir = data_dir
-        self.use_precomputed_description_embeddings = use_precomputed_description_embeddings
-        resource_manager = ResourceManager(entity_set=entity_set,
-                                           data_dir=data_dir,
-                                           model_name=None,
-                                           s3_manager=S3Manager(),
-                                           load_descriptions_tns=not use_precomputed_description_embeddings,
-                                           load_qcode_to_title=return_titles
-                                           )
+        self.use_precomputed_description_embeddings = (
+            use_precomputed_description_embeddings
+        )
+        resource_manager = ResourceManager(
+            entity_set=entity_set,
+            data_dir=data_dir,
+            model_name=None,
+            s3_manager=S3Manager(),
+            load_descriptions_tns=not use_precomputed_description_embeddings,
+            load_qcode_to_title=return_titles,
+        )
         resource_to_file_path = resource_manager.get_data_files()
         self.resource_to_file_path = resource_to_file_path
 
@@ -49,16 +62,24 @@ class LookupsInferenceOnly:
             # TODO: convert to numpy memmap to save space during training with multiple workers
             self.descriptions_tns = None
 
-        self.pem: Mapping[str, List[Tuple[str, float]]] = LmdbImmutableDict(resource_to_file_path["wiki_pem"])
+        self.pem: Mapping[str, List[Tuple[str, float]]] = LmdbImmutableDict(
+            resource_to_file_path["wiki_pem"]
+        )
 
         with open(resource_to_file_path["class_to_label"], "r") as f:
             self.class_to_label: Dict[str, Any] = json.load(f)
 
-        self.human_qcodes: Set[str] = load_human_qcode(resource_to_file_path["human_qcodes"])
+        self.human_qcodes: Set[str] = load_human_qcode(
+            resource_to_file_path["human_qcodes"]
+        )
 
-        self.subclasses: Mapping[str, List[str]] = LmdbImmutableDict(resource_to_file_path["subclasses"])
+        self.subclasses: Mapping[str, List[str]] = LmdbImmutableDict(
+            resource_to_file_path["subclasses"]
+        )
 
-        self.qcode_to_idx: Mapping[str, int] = LmdbImmutableDict(resource_to_file_path["qcode_to_idx"])
+        self.qcode_to_idx: Mapping[str, int] = LmdbImmutableDict(
+            resource_to_file_path["qcode_to_idx"]
+        )
 
         with open(resource_to_file_path["class_to_idx"], "r") as f:
             self.class_to_idx = json.load(f)
@@ -69,17 +90,19 @@ class LookupsInferenceOnly:
         self.num_classes = len(self.class_to_idx)
 
         if return_titles:
-            self.qcode_to_wiki: Mapping[str, str] = LmdbImmutableDict(resource_to_file_path["qcode_to_wiki"])
+            self.qcode_to_wiki: Mapping[str, str] = LmdbImmutableDict(
+                resource_to_file_path["qcode_to_wiki"]
+            )
         else:
             self.qcode_to_wiki = None
 
-        with open(resource_to_file_path["nltk_sentence_splitter_english"], 'rb') as f:
+        with open(resource_to_file_path["nltk_sentence_splitter_english"], "rb") as f:
             self.nltk_sentence_splitter_english: PunktSentenceTokenizer = pickle.load(f)
 
         # can be shared
         self.tokenizers: PreTrainedTokenizer = AutoTokenizer.from_pretrained(
             os.path.dirname(resource_to_file_path["roberta_base_model"]),
-            add_special_tokens=False,
+            # add_special_tokens=False,
             add_prefix_space=False,
             use_fast=True,
         )

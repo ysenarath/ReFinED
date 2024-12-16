@@ -49,11 +49,17 @@ def split_interval(start: int, end: int, num_splits: int = 1) -> List[List[int]]
     for sub_interval_idx in reversed(range(num_splits)):
         if sub_interval_idx == num_splits - 1:
             continue
-        gap_length = sub_intervals[sub_interval_idx + 1][0] - sub_intervals[sub_interval_idx][1]
+        gap_length = (
+            sub_intervals[sub_interval_idx + 1][0] - sub_intervals[sub_interval_idx][1]
+        )
         if gap_length == 0:
             break
-        sub_intervals[sub_interval_idx][1] = sub_intervals[sub_interval_idx][1] + gap_length
-        sub_intervals[sub_interval_idx][0] = sub_intervals[sub_interval_idx][0] + gap_length - 1
+        sub_intervals[sub_interval_idx][1] = (
+            sub_intervals[sub_interval_idx][1] + gap_length
+        )
+        sub_intervals[sub_interval_idx][0] = (
+            sub_intervals[sub_interval_idx][0] + gap_length - 1
+        )
 
     return sub_intervals
 
@@ -123,18 +129,20 @@ def get_tokenizer(
     :param add_prefix_space: Huggingface arg.
     :param add_special_tokens: Huggingface arg.
     """
-    if data_dir is not None and os.path.exists(os.path.join(data_dir, transformer_name)):
+    if data_dir is not None and os.path.exists(
+        os.path.join(data_dir, transformer_name)
+    ):
         tokenizer = AutoTokenizer.from_pretrained(
             os.path.join(data_dir, transformer_name),
             use_fast=use_fast,
-            add_special_tokens=add_special_tokens,
-            add_prefix_space=add_prefix_space
+            # add_special_tokens=add_special_tokens,
+            add_prefix_space=add_prefix_space,
         )
     else:
         tokenizer = AutoTokenizer.from_pretrained(
             transformer_name,
             use_fast=use_fast,
-            add_special_tokens=add_special_tokens,
+            # add_special_tokens=add_special_tokens,
             add_prefix_space=add_prefix_space,
         )
 
@@ -149,11 +157,11 @@ def correct_spans(spans: List[Span]) -> None:
     """
     for span in spans:
         if (
-                len(span.text) == 1
-                or span.text == "\n\n"
-                or span.text == "\n\n\n"
-                or span.text == "\n\n\n\n"
-                or span.text == "the"
+            len(span.text) == 1
+            or span.text == "\n\n"
+            or span.text == "\n\n\n"
+            or span.text == "\n\n\n\n"
+            or span.text == "the"
         ):
             spans.remove(span)
         elif len(span.text) > 2:
@@ -192,14 +200,23 @@ def correct_spans(spans: List[Span]) -> None:
                 continue
 
             # fix title and first mention problem
-            if span.start == 0 and "\n\n" in span.text and len(span.text.split("\n\n")) == 2:
+            if (
+                span.start == 0
+                and "\n\n" in span.text
+                and len(span.text.split("\n\n")) == 2
+            ):
                 first_span_text, second_span_text = span.text.split("\n\n")
-                first_span = Span(start=0, ln=len(first_span_text), text=first_span_text, coarse_type="MENTION")
+                first_span = Span(
+                    start=0,
+                    ln=len(first_span_text),
+                    text=first_span_text,
+                    coarse_type="MENTION",
+                )
                 second_span = Span(
                     start=span.text.find("\n\n") + 2,
                     ln=len(second_span_text),
                     text=second_span_text,
-                    coarse_type="MENTION"
+                    coarse_type="MENTION",
                 )
                 spans.remove(span)
                 spans.append(first_span)
@@ -209,7 +226,9 @@ def correct_spans(spans: List[Span]) -> None:
             # requires text before and after
 
 
-def merge_spans(additional_spans: List[Span], prioritised_spans: List[Span]) -> List[Span]:
+def merge_spans(
+    additional_spans: List[Span], prioritised_spans: List[Span]
+) -> List[Span]:
     """
     Merge to lists of spans. It ensures the spans do not overlap. When there is overlap prioritised_spans is picked.
     :param additional_spans: the spans to combine with the prioritised_spans (usually predicted)
@@ -226,11 +245,16 @@ def merge_spans(additional_spans: List[Span], prioritised_spans: List[Span]) -> 
         spans.append(prioritised_span)
     for additional_span in additional_spans:
         if (
-                len(
-                    set(range(additional_span.start, additional_span.start + additional_span.ln))
-                    & taken_indices
+            len(
+                set(
+                    range(
+                        additional_span.start,
+                        additional_span.start + additional_span.ln,
+                    )
                 )
-                == 0
+                & taken_indices
+            )
+            == 0
         ):
             spans.append(additional_span)
 
