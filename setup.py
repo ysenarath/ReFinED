@@ -23,11 +23,12 @@ with open("requirements.txt") as f:
     dependencies = [line for line in f]
 
 setup(
-    name="ReFinED",
+    name="textkit-learn-refined",
     version="1.0",
     description="Entity Linking via fine-grained entity typing",
-    author="Amazon Alexa AI",
-    author_email="apierleo@amazon.com",
+    # This is a modified version of the original ReFinED package for use in the textkit-learn project
+    author="Yasas Wijesuriya",
+    author_email="yasas.mason@gmail.com",
     # declare your packages
     packages=find_packages(where="src", exclude=("test",)),
     package_dir={"": "src"},

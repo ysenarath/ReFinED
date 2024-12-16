@@ -1,6 +1,6 @@
-from refined.evaluation.evaluation import get_datasets_obj
-from refined.inference.processor import Refined
-from refined.training.fine_tune.fine_tune import fine_tune_on_docs
+from tklearn_refined.evaluation.evaluation import get_datasets_obj
+from tklearn_refined.inference.processor import Refined
+from tklearn_refined.training.fine_tune.fine_tune import fine_tune_on_docs
 
 refined = Refined.from_pretrained(model_name='wikipedia_model',
                                   entity_set='wikipedia',

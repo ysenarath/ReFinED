@@ -12,6 +12,7 @@ WHEELHOUSE = "wheelhouse"
 
 class Package(Command):
     """Package Code and Dependencies into wheelhouse"""
+
     description = "Run wheels for dependencies and submodules dependencies"
     user_options = []
 
@@ -46,7 +47,7 @@ class Package(Command):
             if dependency:
                 # switched order or git and egg and took text before #egg
                 if "git+" in dependency:
-                    pkg_name = dependency.split("/")[-1].split(".")[0].split('#egg')[0]
+                    pkg_name = dependency.split("/")[-1].split(".")[0].split("#egg")[0]
                     local_dependencies.append(pkg_name)
                 elif "egg=" in dependency:
                     pkg_name = dependency.split("egg=")[-1]
@@ -61,7 +62,7 @@ class Package(Command):
         with open("requirements.txt", "w") as requirements_file:
             # filter is used to remove empty list members (None).
             requirements_file.write("\n".join(filter(None, local_dependencies)))
-            requirements_file.write('\nfount_experiment_runner')
+            requirements_file.write("\nfount_experiment_runner")
 
     def execute(self, command, capture_output=False):
         """
@@ -98,20 +99,21 @@ class Package(Command):
     def restore_requirements_txt(self):
         if os.path.exists("requirements.orig"):
             print("Restoring original requirements.txt file")
-            commands = [
-                "rm requirements.txt",
-                "mv requirements.orig requirements.txt"
-            ]
+            commands = ["rm requirements.txt", "mv requirements.orig requirements.txt"]
             self.run_commands(commands)
 
     def run(self):
         commands = []
-        commands.extend([
-            "python setup.py sdist bdist_wheel",
-            "rm -rf {dir}".format(dir=WHEELHOUSE),
-            "mkdir -p {dir}".format(dir=WHEELHOUSE),
-            "pip wheel --wheel-dir={dir} -r requirements.txt".format(dir=WHEELHOUSE)
-        ])
+        commands.extend(
+            [
+                "python setup.py sdist bdist_wheel",
+                "rm -rf {dir}".format(dir=WHEELHOUSE),
+                "mkdir -p {dir}".format(dir=WHEELHOUSE),
+                "pip wheel --wheel-dir={dir} -r requirements.txt".format(
+                    dir=WHEELHOUSE
+                ),
+            ]
+        )
 
         print("Packing requirements.txt into wheelhouse")
         self.run_commands(commands)
@@ -122,7 +124,9 @@ class Package(Command):
         self.run_command("sdist")
         self.restore_requirements_txt()
 
-        final_commands = ["tar -C dist -xvf dist/refined-1.0.tar.gz",
-                          "rm dist/refined-1.0.tar.gz",
-                          "tar -czvf dist/refined-1.0.tar.gz dist/refined-1.0"]
+        final_commands = [
+            "tar -C dist -xvf dist/textkit-learn-refined-1.0.tar.gz",
+            "rm dist/textkit-learn-refined-1.0.tar.gz",
+            "tar -czvf dist/textkit-learn-refined-1.0.tar.gz dist/textkit-learn-refined-1.0",
+        ]
         self.run_commands(final_commands)

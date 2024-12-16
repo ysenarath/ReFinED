@@ -1,9 +1,9 @@
 import random
 import string
 
-from refined.data_types.base_types import Span
-from refined.inference.processor import Refined
-from refined.torch_overrides.data_parallel_refined import DataParallelReFinED
+from tklearn_refined.data_types.base_types import Span
+from tklearn_refined.inference.processor import Refined
+from tklearn_refined.torch_overrides.data_parallel_refined import DataParallelReFinED
 
 refined = Refined.from_pretrained(model_name='wikipedia_model_with_numbers',
                                   entity_set='wikipedia',

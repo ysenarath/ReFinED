@@ -1,5 +1,5 @@
-from refined.evaluation.evaluation import eval_all
-from refined.inference.processor import Refined
+from tklearn_refined.evaluation.evaluation import eval_all
+from tklearn_refined.inference.processor import Refined
 
 refined = Refined.from_pretrained(model_name='aida_model',
                                   entity_set='wikipedia',
